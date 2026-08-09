@@ -14,3 +14,10 @@
 - `.ai-handoff/checkpoints/` — 检查点快照目录
 - `scripts/ai_checkpoint.py` — 自动交接脚本
 - `.gitignore` — 敏感/第三方排除规则
+
+## 2026-08-09 13:10 — Checkpoint
+
+摘要: update reports analysis artifacts
+
+- `M reverse_workspace/reports/12_CORDOVA.md`
+

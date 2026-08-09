@@ -29,3 +29,4 @@ Cordova 在本次逆向中不适用。 [CONFIRMED]
 - 最初线索 "Cordova" 被否定 → 实为 Capacitor [CONFIRMED]
 - android.apk 的 26 字节头部前缀是 **APK Signing Block(v2 签名)** 偏移对齐特性 [HIGHLY_LIKELY]
   - 证据: EOCD 之后 `APK Sig Block 42` 标记出现在 Central Directory 前
+- 新增证据: apk 已确认 Capacitor
