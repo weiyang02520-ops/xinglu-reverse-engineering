@@ -1,0 +1,578 @@
+[
+ {
+  "url": "http://goo.gl/MqrFmX",
+  "file": "main.js"
+ },
+ {
+  "url": "http://goo.gl/rRqMUw",
+  "file": "main.js"
+ },
+ {
+  "url": "https://stuk.github.io/jszip/documentation/howto/read_zip.html",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/1999/xhtml",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2000/svg",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/XML/1998/namespace",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2000/xmlns/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/drawingml/2006/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/drawingml/2006/picture",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.oclc.org/ooxml/wordprocessingml/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.oclc.org/ooxml/officeDocument/relationships",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.oclc.org/ooxml/drawingml/wordprocessingDrawing",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.oclc.org/ooxml/drawingml/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.oclc.org/ooxml/drawingml/picture",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/package/2006/content-types",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/package/2006/relationships",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/markup-compatibility/2006",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/word/2010/wordml",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.zwobble.org/mammoth/style-map",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer",
+  "file": "main.js"
+ },
+ {
+  "url": "http://${e",
+  "file": "main.js"
+ },
+ {
+  "url": "http://example.com",
+  "file": "main.js"
+ },
+ {
+  "url": "https://foo.bar",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xci/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xfa-connection-set/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xfa-data/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xfa-form/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xfa-locale-set/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://ns.adobe.com/xdp/pdf/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2000/09/xmldsig#",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xfa-source-set/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/1999/XSL/Transform",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xfa-template/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xdc/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://ns.adobe.com/xdp/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://ns.adobe.com/xfdf/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://ns.adobe.com/xmpmeta/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.xfa.org/schema/xfa-data/1.0/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://docs.oasis-open.org/ns/office/1.2/meta/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://docs.oasis-open.org/ns/office/1.2/meta/pkg#",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.org/dc/elements/1.1/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/1999/xlink",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/spreadsheetml/2017/richdata",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/TR/REC-html40",
+  "file": "main.js"
+ },
+ {
+  "url": "https://sheetjs.com/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/spreadsheetml/2018/threadedcomments",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.org/dc/terms/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.org/dc/dcmitype/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/mac/excel/2008/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/package/2006/sheetjs/core-properties",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2001/XMLSchema-instance",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2001/XMLSchema",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.oclc.org/ooxml/spreadsheetml/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/excel/2006/main",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/excel/2006/2",
+  "file": "main.js"
+ },
+ {
+  "url": "http://macVmlSchemaUri",
+  "file": "main.js"
+ },
+ {
+  "url": "http://sheetjs.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/2006/relationships/xlExternalLinkPath/xlPathMissing",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLink",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/2014/relationships/chartEx",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+  "file": "main.js"
+ },
+ {
+  "url": "http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/dialogsheet",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/2006/relationships/xlMacrosheet",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/2017/10/relationships/threadedComment",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/2017/10/relationships/person",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/connections",
+  "file": "main.js"
+ },
+ {
+  "url": "http://schemas.microsoft.com/office/2006/relationships/vbaProject",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/1998/Math/MathML",
+  "file": "main.js"
+ },
+ {
+  "url": "http://openoffice.org/2004/office",
+  "file": "main.js"
+ },
+ {
+  "url": "http://openoffice.org/2004/writer",
+  "file": "main.js"
+ },
+ {
+  "url": "http://openoffice.org/2004/calc",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2001/xml-events",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2002/xforms",
+  "file": "main.js"
+ },
+ {
+  "url": "http://openoffice.org/2005/report",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/2003/g/data-view#",
+  "file": "main.js"
+ },
+ {
+  "url": "http://openoffice.org/2009/table",
+  "file": "main.js"
+ },
+ {
+  "url": "http://openoffice.org/2010/draw",
+  "file": "main.js"
+ },
+ {
+  "url": "http://www.w3.org/TR/css3-text/",
+  "file": "main.js"
+ },
+ {
+  "url": "http://127.0.0.1:${e.publishedPort.trim",
+  "file": "main.js"
+ },
+ {
+  "url": "http://127.0.0.1:8787",
+  "file": "main.js"
+ },
+ {
+  "url": "http://127.0.0.1:18789",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.vectorengine.ai",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.vectorengine.cn",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.vectorengine.ai/v1",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.vectorengine.ai/api/usage/token/",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.a6api.com",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.a6api.com/v1",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.a6api.com/api/usage/token/",
+  "file": "main.js"
+ },
+ {
+  "url": "https://xushilu.cn",
+  "file": "main.js"
+ },
+ {
+  "url": "https://google.serper.dev/search",
+  "file": "main.js"
+ },
+ {
+  "url": "https://open.bigmodel.cn/api/paas/v4/web_search",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.bochaai.com/v1/ai-search",
+  "file": "main.js"
+ },
+ {
+  "url": "http://*/*",
+  "file": "main.js"
+ },
+ {
+  "url": "https://*/*",
+  "file": "main.js"
+ },
+ {
+  "url": "https://www.bing.com/",
+  "file": "main.js"
+ },
+ {
+  "url": "https://www.sogou.com/web?query=${a}&ie=utf8",
+  "file": "main.js"
+ },
+ {
+  "url": "https://www.sogou.com/web?query=${a}&ie=utf8&page=${r",
+  "file": "main.js"
+ },
+ {
+  "url": "https://www.bing.com/search?q=${n}&setlang=zh-CN${i",
+  "file": "main.js"
+ },
+ {
+  "url": "https://r.jina.ai/http://${i",
+  "file": "main.js"
+ },
+ {
+  "url": "https://www.bing.com/search?q=${r}&setlang=zh-CN${n",
+  "file": "main.js"
+ },
+ {
+  "url": "https://${t",
+  "file": "main.js"
+ },
+ {
+  "url": "http://${t",
+  "file": "main.js"
+ },
+ {
+  "url": "https://write.qq.com/portal/dashboard/books",
+  "file": "main.js"
+ },
+ {
+  "url": "https://fanqienovel.com/main/writer/book-manage?enter_from=book_detail",
+  "file": "main.js"
+ },
+ {
+  "url": "https://write.qq.com/",
+  "file": "main.js"
+ },
+ {
+  "url": "https://api.xushilu.cn",
+  "file": "main.js"
+ },
+ {
+  "url": "https://119.45.39.251",
+  "file": "main.js"
+ },
+ {
+  "url": "http://${VTt",
+  "file": "main.js"
+ },
+ {
+  "url": "http://${s.address}:${e",
+  "file": "main.js"
+ },
+ {
+  "url": "http://127.0.0.1:${e",
+  "file": "main.js"
+ },
+ {
+  "url": "http://${e.headers.host??",
+  "file": "main.js"
+ },
+ {
+  "url": "https://react.dev/errors/",
+  "file": "rendererApp-D0lJ3WIN.js"
+ },
+ {
+  "url": "https://api.example.com/v1",
+  "file": "rendererApp-D0lJ3WIN.js"
+ }
+]

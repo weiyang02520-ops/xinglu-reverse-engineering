@@ -1,0 +1,118 @@
+[
+ {
+  "channel": "novelforge:window",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:user-created-material",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:chief-editor",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:projects",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:support",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:system",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:global-overlay-view",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:chapter-editor-view",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:chapter-revision-restore",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:workflow",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:paths",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:materials",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:outline-manager",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:agents",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:prompts",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:artifacts",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:publisher",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:tokens",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:feedback",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:mobile-bridge",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:membership",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:provider",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:official-models",
+  "file": "main.js"
+ },
+ {
+  "channel": "novelforge:startup-window-shown",
+  "file": "preload.cjs"
+ },
+ {
+  "channel": "novelforge:startup-window-fade-in-complete",
+  "file": "preload.cjs"
+ },
+ {
+  "channel": "novelforge:startup-renderer-prepared",
+  "file": "index-CvAAoCbC.js"
+ },
+ {
+  "channel": "novelforge:startup-initial-app-data-ready",
+  "file": "index-CvAAoCbC.js"
+ },
+ {
+  "channel": "novelforge:chapter-editor-font-size",
+  "file": "rendererApp-D0lJ3WIN.js"
+ },
+ {
+  "channel": "novelforge:chief-editor-audio-mini-player",
+  "file": "rendererApp-D0lJ3WIN.js"
+ }
+]

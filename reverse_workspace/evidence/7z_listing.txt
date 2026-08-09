@@ -1,0 +1,33 @@
+
+7-Zip 26.00 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-02-12
+
+Scanning the drive for archives:
+1 file, 122522853 bytes (117 MiB)
+
+Listing archive: xinglu-latest.exe
+
+--
+Path = xinglu-latest.exe
+Type = Nsis
+Physical Size = 122522853
+Method = Deflate
+Solid = -
+Headers Size = 210366
+Embedded Stub Size = 178688
+SubType = NSIS-3 Unicode
+
+   Date      Time    Attr         Size   Compressed  Name
+------------------- ----- ------------ ------------  ------------------------
+                    .....                      6931  $PLUGINSDIR\System.dll
+                    .....                      8018  $PLUGINSDIR\UAC.dll
+                    .....                     45608  $PLUGINSDIR\StdUtils.dll
+                    .....                      4684  $PLUGINSDIR\nsDialogs.dll
+2019-06-18 03:21:30 .....                      1899  $PLUGINSDIR\modern-wizard.bmp
+                    .....                      2027  $PLUGINSDIR\nsProcess.dll
+2026-08-07 13:26:00 .....    121712724    121712724  $PLUGINSDIR\app-64.7z
+                    .....                    242382  $PLUGINSDIR\nsis7z.dll
+2026-08-07 13:26:06 .....                    267670  $R0\Uninstall XingLu.exe
+                    .....                      1080  $PLUGINSDIR\WinShell.dll
+                    .....                      3299  $PLUGINSDIR\nsExec.dll
+------------------- ----- ------------ ------------  ------------------------
+2026-08-07 13:26:06          121712724    122296322  11 files

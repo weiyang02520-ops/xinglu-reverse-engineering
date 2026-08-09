@@ -1,0 +1,26 @@
+[
+ {
+  "route": ":case",
+  "file": "main.js"
+ },
+ {
+  "route": "LiberationSans-Regular.ttf",
+  "file": "main.js"
+ },
+ {
+  "route": "LiberationSans-Bold.ttf",
+  "file": "main.js"
+ },
+ {
+  "route": "LiberationSans-Italic.ttf",
+  "file": "main.js"
+ },
+ {
+  "route": "LiberationSans-BoldItalic.ttf",
+  "file": "main.js"
+ },
+ {
+  "route": "circle",
+  "file": "main.js"
+ }
+]

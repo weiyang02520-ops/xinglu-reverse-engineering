@@ -1,0 +1,58 @@
+# 项目基础忽略
+node_modules/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# 敏感文件 — 任何环境文件/密钥/凭据绝不入库
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+credentials*
+secrets*
+*.secret
+id_rsa
+id_ed25519
+**/auth.json
+
+# 构建产物(如非必要不提交)
+build/
+*.tsbuildinfo
+
+# IDE/系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ─────────────────────────────────────────────
+# 逆向分析项目专项保护(第三方材料不提交)
+# ─────────────────────────────────────────────
+
+# 原始第三方安装包/二进制 —— 版权材料, 禁止上传
+xinglu-latest.exe
+*.7z
+
+# 完整提取的第三方资源(Electron 运行时/Chromium DLL/字体/图片)
+reverse_workspace/extracted/
+
+# 大型格式化副本(6MB+ 单文件, 可在本地重新生成)
+reverse_workspace/formatted/
+
+# 本地临时依赖(prettier 等)
+reverse_workspace/node_modules/
+
+# 保留提交的内容(分析产出):
+#   reverse_workspace/reports/   — 分析报告
+#   reverse_workspace/indexes/   — 文件索引/CSV
+#   reverse_workspace/evidence/  — 命令输出证据
+#   reverse_workspace/scripts/   — 自写辅助脚本
+#   reverse_workspace/reconstructed/ — 重建工程
+#   .ai-handoff/                 — AI 交接文档

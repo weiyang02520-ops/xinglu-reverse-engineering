@@ -1,0 +1,16 @@
+# AI 变更日志
+
+> 每次 Checkpoint 由 `scripts/ai_checkpoint.py` 追加。
+
+## 2026-08-09 13:10 — Checkpoint (初始)
+
+摘要: 建立 AI 自动交接系统骨架
+
+- `.ai-handoff/HANDOFF.md` — 交接主文档(12 节结构)
+- `.ai-handoff/STATUS.md` — 项目状态
+- `.ai-handoff/CHANGELOG_AI.md` — 本文件
+- `.ai-handoff/NEXT_TASKS.md` — 待办
+- `.ai-handoff/REVIEW_REQUEST.md` — 外部审查请求
+- `.ai-handoff/checkpoints/` — 检查点快照目录
+- `scripts/ai_checkpoint.py` — 自动交接脚本
+- `.gitignore` — 敏感/第三方排除规则

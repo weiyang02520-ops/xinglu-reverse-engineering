@@ -1,0 +1,82 @@
+[
+ {
+  "path": "/api/author/publish_article/",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/accounts/login",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/accounts/register",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/accounts/login-or-create",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/accounts/redeem",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/orders",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/plans",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/app/startup-notice",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/app/legal-agreements",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/app/official-website",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/app/creative-tools",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/app/project-writing-presets",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/support/chat/thread",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/support/chat/messages",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/support/chat/read",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/support/chat/session",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/support/chat/status",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/official-models/catalog",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/official-models/usage",
+  "file": "main.js"
+ },
+ {
+  "path": "/v1/app/update",
+  "file": "main.js"
+ }
+]

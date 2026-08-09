@@ -1,0 +1,60 @@
+
+7-Zip 26.00 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-02-12
+
+Scanning the drive for archives:
+1 file, 121712724 bytes (117 MiB)
+
+Listing archive: reverse_workspace\extracted\nsis\$PLUGINSDIR\app-64.7z
+
+--
+Path = reverse_workspace\extracted\nsis\$PLUGINSDIR\app-64.7z
+Type = 7z
+Physical Size = 121712724
+Headers Size = 1126
+Method = LZMA2:20 LZMA:20 BCJ2
+Solid = -
+Blocks = 32
+
+   Date      Time    Attr         Size   Compressed  Name
+------------------- ----- ------------ ------------  ------------------------
+                    D....            0            0  locales
+                    D....            0            0  resources
+                    D....            0            0  resources\app.asar.unpacked
+                    D....            0            0  resources\app.asar.unpacked\node_modules
+                    D....            0            0  resources\app.asar.unpacked\node_modules\@img
+                    D....            0            0  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64
+                    D....            0            0  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\lib
+                    ....A       119905       109582  chrome_100_percent.pak
+                    ....A       197089       183482  chrome_200_percent.pak
+                    ....A     10876560      3490899  icudtl.dat
+                    ....A         1096          690  LICENSE.electron.txt
+                    ....A     20313957       549490  LICENSES.chromium.html
+                    ....A       559913       137359  locales\en-GB.pak
+                    ....A       566095       138029  locales\en-US.pak
+                    ....A       571748       139402  locales\zh-CN.pak
+                    ....A       564377       137456  locales\zh-TW.pak
+                    ....A          113          109  resources\app-update.yml
+                    ....A     41881604     24503760  resources\app.asar
+                    ....A           62           66  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\index.cjs
+                    ....A       442368       165890  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\lib\sharp-win32-x64-0.35.3.node
+                    ....A        10464         3766  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\LICENSE
+                    ....A          888          457  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\package.json
+                    ....A          600          310  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\versions.json
+                    ....A      7148145      7057301  resources.pak
+                    ....A       365488        54702  snapshot_blob.bin
+                    ....A       740048       117896  v8_context_snapshot.bin
+                    ....A          106           96  vk_swiftshader_icd.json
+                    ....A      4741488      1580157  d3dcompiler_47.dll
+                    ....A     25616896      6443225  dxcompiler.dll
+                    ....A      1509760       474729  dxil.dll
+                    ....A      3067904       931974  ffmpeg.dll
+                    ....A       474624       165862  libEGL.dll
+                    ....A      8024064      2214241  libGLESv2.dll
+                    ....A     18406400      5938150  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\lib\libvips-42.dll
+                    ....A       333312        85362  resources\app.asar.unpacked\node_modules\@img\sharp-win32-x64\lib\libvips-cpp-8.18.3.dll
+                    ....A       107520        49095  resources\elevate.exe
+                    ....A      5502464      1345892  vk_swiftshader.dll
+                    ....A       930304       255729  vulkan-1.dll
+                    ....A    225709568     65436440  XingLu.exe
+------------------- ----- ------------ ------------  ------------------------
+                             378784930    121711598  32 files, 7 folders
