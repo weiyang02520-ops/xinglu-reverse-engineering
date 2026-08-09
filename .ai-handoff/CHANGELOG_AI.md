@@ -44,3 +44,15 @@
 - `M reverse_workspace/PROGRESS.md`
 - `?? .ai-handoff/AUTOMATION_SETUP.md`
 
+
+## 2026-08-09 13:51 — Checkpoint
+
+摘要: update reports analysis artifacts
+
+- `M reverse_workspace/PROGRESS.md`
+- `?? reverse_workspace/FINAL_REPORT.md`
+- `?? reverse_workspace/reconstructed/`
+- `?? reverse_workspace/reports/15_FEATURE_MAP.md`
+- `?? reverse_workspace/reports/16_ARCHITECTURE.md`
+- `?? reverse_workspace/reports/EVIDENCE_INDEX.md`
+
