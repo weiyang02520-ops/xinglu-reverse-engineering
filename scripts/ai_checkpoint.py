@@ -163,6 +163,9 @@ def security_scan(force_files=None):
         full = os.path.join(ROOT, path)
         if not os.path.isfile(full):
             continue
+        # 跳过扫描器自身(它包含检测规则字符串, 属误报源)
+        if os.path.abspath(full) == os.path.abspath(__file__):
+            continue
         # 跳过二进制/大文件(不扫描内容, 但按扩展名拦截)
         size = os.path.getsize(full)
         if size > 2_000_000:  # >2MB 不扫描内容
@@ -252,19 +255,6 @@ def main():
         print("   (或确认已在正确的项目目录中运行本脚本)")
         return 3
 
-    # ── 0. 定时模式: 无新进展则直接退出 ──
-    code, out, _ = git("log", "-1", "--format=%ci")
-    last_commit_time = out if out else ""
-    if args.mode == "auto" and last_commit_time:
-        try:
-            last = datetime.datetime.fromisoformat(last_commit_time.strip())
-            now = datetime.datetime.now(last.tzinfo)
-            if (now - last).total_seconds() < args.since_min * 60:
-                print("⏳ 距上次 checkpoint 不足阈值, 无新进展, 退出。")
-                return 1
-        except Exception:
-            pass
-
     # ── 1. 检查是否有实际变化 ──
     has_changes, changes, stats = collect_changes()
     if not has_changes:
@@ -272,6 +262,20 @@ def main():
         return 1
 
     print(f"📋 检测到 {stats['added']} 新增 / {stats['modified']} 修改 / {stats['deleted']} 删除")
+
+    # ── 1.5 定时模式: 有变化但距上次 checkpoint 不足阈值 → 等待积累 ──
+    if args.mode == "auto":
+        code, out, _ = git("log", "-1", "--format=%ci")
+        last_commit_time = out if out else ""
+        if last_commit_time:
+            try:
+                last = datetime.datetime.fromisoformat(last_commit_time.strip())
+                now = datetime.datetime.now(last.tzinfo)
+                if (now - last).total_seconds() < args.since_min * 60:
+                    print(f"⏳ 有新变化, 但距上次 checkpoint 不足 {args.since_min} 分钟, 等待积累。")
+                    return 1
+            except Exception:
+                pass
 
     # ── 2. Git 身份检查(空提交保护) ──
     name, email = get_git_user()
