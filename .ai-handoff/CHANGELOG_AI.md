@@ -56,3 +56,23 @@
 - `?? reverse_workspace/reports/16_ARCHITECTURE.md`
 - `?? reverse_workspace/reports/EVIDENCE_INDEX.md`
 
+
+## 2026-08-09 15:23 — Checkpoint
+
+摘要: test sync fix
+
+- `M scripts/ai_checkpoint.py`
+
+
+## 2026-08-09 15:26 — Checkpoint
+
+摘要: add 3 new files
+
+- `M .ai-handoff/CHANGELOG_AI.md`
+- ` M .ai-handoff/HANDOFF.md`
+- ` M .ai-handoff/STATUS.md`
+- ` M scripts/ai_checkpoint.py`
+- `?? .ai-handoff/PROJECT_STATE.md`
+- `?? .ai-handoff/checkpoints/2026-08-09_15-23.md`
+- `?? clean-room/`
+

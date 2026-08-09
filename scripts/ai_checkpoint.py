@@ -195,23 +195,212 @@ def security_scan(force_files=None):
     return len(findings) > 0, findings
 
 
+HANDOFF_TEMPLATE = """# Project Handoff
+
+> 自动生成入口: `scripts/ai_checkpoint.py`
+> 本文件在每次 Checkpoint 时由脚本**自动重写**, 内容来自单一事实源 `.ai-handoff/PROJECT_STATE.md` + git 事实。
+> 请勿手改本文件, 需修改状态请改 PROJECT_STATE.md。
+
+## 1. 项目目标
+
+{project_goal}
+
+## 2. 当前阶段
+
+{phase}
+
+## 3. 本轮完成内容
+
+{last_round}
+
+## 4. 本轮修改文件
+
+{changes_table}
+
+## 5. 已验证结果
+
+{verified}
+
+## 6. 未验证内容
+
+{unverified}
+
+## 7. 当前架构
+
+{architecture}
+
+## 8. 当前已知问题
+
+{known_issues}
+
+## 9. 本轮关键决策
+
+{key_decisions}
+
+## 10. 下一步建议
+
+{next_steps}
+
+## 11. 希望外部模型重点审查
+
+{review_focus}
+
+## 12. Git 信息
+
+- Branch: {branch}
+- HEAD: {head_short} {head_subject}
+- 最近 commit: {last_commit}
+- 时间: {now}
+
+## 13. Critical Files
+
+{critical_files}
+
+## 14. Recent Important Changes
+
+{recent_changes}
+"""
+
+
+def load_project_state():
+    """读取单一事实源 PROJECT_STATE.md, 缺失时给空值(不自动创建模板)。"""
+    path = os.path.join(HANDOFF_DIR, "PROJECT_STATE.md")
+    defaults = {
+        "project_goal": "(待填写: 请更新 .ai-handoff/PROJECT_STATE.md)",
+        "phase": "(待填写)",
+        "last_round": "- (待填写)",
+        "verified": "- (待填写)",
+        "unverified": "- (待填写)",
+        "architecture": "(待填写)",
+        "known_issues": "- (待填写)",
+        "key_decisions": "- (待填写)",
+        "next_steps": "- (待填写)",
+        "review_focus": "- (待填写)",
+        "critical_files": "- (待填写)",
+        "recent_changes": "- (待填写)",
+    }
+    if not os.path.exists(path):
+        return defaults, path
+    text = open(path, encoding="utf-8").read()
+    state = dict(defaults)
+    for key in defaults:
+        m = re.search(
+            rf"^## {re.escape(key)}\s*$\n(.*?)(?=^## |\Z)",
+            text,
+            re.M | re.S,
+        )
+        if m:
+            val = m.group(1).strip()
+            if val and val != "(待填写)":
+                state[key] = val
+    return state, path
+
+
+def write_project_state(state, path):
+    """写回 PROJECT_STATE.md(全量重写, 保持键顺序一致)。"""
+    order = [
+        "project_goal", "phase", "last_round", "verified", "unverified",
+        "architecture", "known_issues", "key_decisions", "next_steps",
+        "review_focus", "critical_files", "recent_changes",
+    ]
+    lines = ["# Project State (单一事实源)", ""]
+    lines.append("> 本文件是 HANDOFF.md / STATUS.md 的唯一内容来源。")
+    lines.append("> Agent 每轮完成后**必须更新**本文件(阶段/完成/验证/下一步等), 再运行 checkpoint。")
+    lines.append("> 脚本每次 checkpoint 会基于本文件 + git 事实重写 HANDOFF.md 和 STATUS.md。")
+    lines.append("")
+    for key in order:
+        lines.append(f"## {key}")
+        lines.append("")
+        lines.append(state.get(key, "(待填写)"))
+        lines.append("")
+    open(path, "w", encoding="utf-8").write("\n".join(lines))
+
+
 def update_handoff(summary, changes, stats):
-    """更新 .ai-handoff 核心文档(追加式, 不覆盖用户已有内容)。"""
+    """基于 PROJECT_STATE.md + git 事实, 重写 HANDOFF.md 与 STATUS.md。
+
+    不再出现"脚本写模板后用户没更新, 导致交接文档与真实状态脱节"的问题:
+    - 文档内容永远由脚本从单一事实源重新生成
+    - 事实源缺失字段时文档显示 "(待填写)", 提示 Agent 去补 PROJECT_STATE.md
+    """
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     os.makedirs(HANDOFF_DIR, exist_ok=True)
     os.makedirs(CHECKPOINTS_DIR, exist_ok=True)
 
-    # 1) STATUS.md — 覆盖式(简短状态)
-    status_path = os.path.join(HANDOFF_DIR, "STATUS.md")
-    if not os.path.exists(status_path):
-        with open(status_path, "w", encoding="utf-8") as f:
-            f.write("# 项目状态\n\n")
-            f.write(f"> 最后更新: {now}\n\n")
-            f.write("## 当前阶段\n\n(待填写)\n\n")
-            f.write("## 已验证内容\n\n- (待填写)\n\n")
-            f.write("## 未验证内容\n\n- (待填写)\n")
+    state, state_path = load_project_state()
 
-    # 2) CHANGELOG_AI.md — 追加
+    # 本轮事实: 变更摘要
+    summary_line_text = f"**{summary}**(新增 {stats['added']} / 修改 {stats['modified']} / 删除 {stats['deleted']})"
+    changes_table = "\n".join(
+        f"- `{c}`" for c in changes[:30]
+    ) if changes else "- (无文件变更)"
+    if len(changes) > 30:
+        changes_table += f"\n- …等共 {len(changes)} 个变更"
+
+    # git 事实
+    _, branch, _ = git("branch", "--show-current")
+    _, head_long, _ = git("rev-parse", "HEAD")
+    _, head_subject, _ = git("log", "-1", "--format=%s")
+    _, last_commit, _ = git("log", "-1", "--format=%h %ci")
+    head_short = (head_long or "?")[:12]
+
+    # 重写 HANDOFF.md
+    handoff = HANDOFF_TEMPLATE.format(
+        project_goal=state["project_goal"],
+        phase=state["phase"],
+        last_round=state["last_round"],
+        changes_table=changes_table,
+        verified=state["verified"],
+        unverified=state["unverified"],
+        architecture=state["architecture"],
+        known_issues=state["known_issues"],
+        key_decisions=state["key_decisions"],
+        next_steps=state["next_steps"],
+        review_focus=state["review_focus"],
+        critical_files=state["critical_files"],
+        recent_changes=state["recent_changes"],
+        branch=branch or "(detached)",
+        head_short=head_short,
+        head_subject=head_subject or "?",
+        last_commit=last_commit or "?",
+        now=now,
+    )
+    with open(os.path.join(HANDOFF_DIR, "HANDOFF.md"), "w", encoding="utf-8") as f:
+        f.write(handoff)
+
+    # 重写 STATUS.md(同样来自事实源 + 本轮摘要)
+    status = f"""# 项目状态
+
+> 最后更新: {now} (自动生成, 来源: PROJECT_STATE.md)
+
+## 当前阶段
+
+{state['phase']}
+
+## 本轮变更
+
+{summary_line_text}
+
+## 已验证内容
+
+{state['verified']}
+
+## 未验证内容
+
+{state['unverified']}
+
+## 已知问题
+
+{state['known_issues']}
+
+## 下一步
+
+{state['next_steps']}
+"""
+    with open(os.path.join(HANDOFF_DIR, "STATUS.md"), "w", encoding="utf-8") as f:
+        f.write(status)
+
+    # CHANGELOG_AI.md — 追加
     changelog = os.path.join(HANDOFF_DIR, "CHANGELOG_AI.md")
     if not os.path.exists(changelog):
         with open(changelog, "w", encoding="utf-8") as f:
@@ -223,7 +412,7 @@ def update_handoff(summary, changes, stats):
             f.write(f"- `{c}`\n")
         f.write("\n")
 
-    # 3) checkpoint 快照
+    # checkpoint 快照
     snap = os.path.join(CHECKPOINTS_DIR, now.replace(":", "-").replace(" ", "_") + ".md")
     with open(snap, "w", encoding="utf-8") as f:
         f.write(f"# Checkpoint {now}\n\n")
