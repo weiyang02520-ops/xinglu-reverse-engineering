@@ -6,36 +6,57 @@
 
 ```
 data/novels/<project_id>/
-├── project.json            # 项目元信息
-├── settings.json           # 项目级写作设置
-├── outline/
-│   ├── summary.md          # 全书梗概
-│   ├── vol_001.md          # 第一卷大纲
-│   ├── vol_002.md          # …
-│   └── chapter_plan.md     # 当前章细纲(滚动)
-├── characters/
-│   ├── 角色A.md            # 人物设定文件(每角色一个)
-│   └── …
-├── world/
+├── project.json                # 项目元信息
+├── settings.json               # 项目级写作设置(非敏感)
+├── .history/                   # 历史快照(undo-last-change 用, 见 §8)
+├── outline/                    # ⭐ 事实源: 大纲
+│   ├── summary.md              #   全书梗概
+│   ├── volumes/
+│   │   └── vol001.md           #   分卷大纲(一卷一文件, 永不覆盖历史卷)
+│   └── chapters/
+│       ├── ch0001.md           #   章细纲(一章一文件, 生成后保留)
+│       └── ch0002.md
+├── characters/                 # ⭐ 事实源: 人物正式设定
+│   └── <slug>.md               #   每角色一文件
+├── world/                      # ⭐ 事实源: 世界观正式设定
 │   ├── 世界观.md
-│   └── 势力.md             # 组织/势力
-├── chapters/
-│   ├── ch001.md            # 章节正文(Markdown)
-│   ├── ch002.md
+│   └── 势力.md
+├── rules/                      # ⭐ 事实源: 用户确认的创作规则
+│   └── writing_rules.md
+├── chapters/                   # ⭐ 事实源: 已确认章节正文(最终版)
+│   ├── ch0001.md
 │   └── …
-├── memory/
-│   ├── chapter_summaries.md # 章节摘要索引(滚动, 含旧章摘要压缩)
-│   ├── characters.md        # 人物当前状态(动态)
-│   ├── world.md             # 世界当前状态(动态)
-│   ├── timeline.md          # 时间线
-│   ├── foreshadowing.md     # 伏笔登记
-│   └── long_term.md         # 长期记忆/设定沉淀
-└── drafts/
-    ├── ch003.draft.md      # 未确认的草稿
-    └── …
+├── drafts/                     # 草稿(未确认, 非事实源)
+│   ├── ch0003.draft.md
+│   └── …
+├── memory/                     # 派生记忆(可重建, 不覆盖事实源)
+│   ├── summaries/
+│   │   ├── ch0001.md           #   每章摘要一文件
+│   │   └── ch0002.md
+│   ├── characters.md           #   人物当前状态(动态)
+│   ├── world.md                #   世界当前状态(动态)
+│   ├── timeline.md             #   时间线索引
+│   ├── foreshadowing/          #   伏笔索引(每伏笔一文件或单文件+索引)
+│   │   └── index.md
+│   ├── long_term.md            #   长期记忆摘要
+│   └── index.md                #   记忆索引(快速检索: 章节→摘要文件 映射)
+└── review/                     # 审稿记录(可选保留)
+    └── ch0003.review.md
 ```
 
-## 2. project.json
+## 2. 事实源 vs 派生记忆(核心边界)
+
+| 类别 | 内容 | 特性 |
+|---|---|---|
+| **Canonical Sources(事实源)** | 章节正文(chapters/)、人物正式设定(characters/)、世界观正式设定(world/)、大纲(outline/)、用户确认的创作规则(rules/) | **唯一真相**; 只由"用户确认"或"明确编辑操作"修改; `rebuild-memory` **绝不覆盖** |
+| **Derived Memory(派生记忆)** | 章节摘要(memory/summaries/)、人物当前状态、世界当前状态、时间线索引、伏笔索引、长期记忆摘要 | **可重建**; 从事实源 + LLM 派生; `rebuild-memory` 可安全重建 |
+
+**规则**:
+- `rebuild-memory` 只重建 `memory/` 目录, 绝不动 `chapters/`、`characters/`、`world/`、`outline/`、`rules/`。
+- 记忆文件损坏/丢失 → 重建即可; 事实源损坏 → 需用户手动处理(有 .history/ 快照兜底)。
+- 派生记忆的更新是"增量"(LLM 比对旧状态 + 新章节 → 新状态), 但旧状态本身永远可从事实源重建, 不依赖增量链条。
+
+## 3. project.json
 
 ```json
 {
@@ -52,42 +73,80 @@ data/novels/<project_id>/
   "defaults": {
     "writer_model": null,
     "reviewer_model": null
-  }
+  },
+  "auto_accept": false
 }
 ```
 
-## 3. 章节文件(chNNN.md)
+> `auto_accept: false`(默认): Reviewer 通过只到 READY, 必须用户确认才正式收录。未来支持 `true`(全自动), 第一版不实现。
+
+## 4. 章节文件(chNNNN.md)
 
 ```markdown
-# 第 3 章 意外来客
-
-> meta: {"chapter": 3, "volume": 1, "status": "confirmed",
->        "characters_used": ["林小满", "老陈"], "summary": "…",
->        "created_at": "...", "updated_at": "..."}
-> (元信息存于文件顶部 YAML/注释块, 便于 grep)
+---
+chapter: 3
+volume: 1
+title: 意外来客
+status: confirmed        # draft | reviewing | ready | user_confirmed | confirmed
+words: 2450
+created_at: "2026-08-09T12:00:00Z"
+updated_at: "2026-08-09T12:30:00Z"
+summary: 林小满在夜市遭遇黑市商人, 意外获得城主戒指。
+characters: [lin-xiaoman, lao-chen]
+---
 
 正文内容…
 ```
 
-章节状态机: `draft`(草稿) → `reviewing`(审稿中) → `confirmed`(已确认)
+> `chapters/` 只放 **confirmed** 章节; `drafts/` 放未确认草稿; 章节号 4 位零填充(`ch0003`), 支持 2000+ 章排序。
 
-## 4. 记忆文件格式
+## 5. 大纲结构(长期可扩展)
 
-### chapter_summaries.md(滚动摘要)
+```
+outline/
+├── summary.md            # 全书梗概
+├── volumes/
+│   ├── vol001.md         # 卷1 大纲(含章目列表)
+│   └── vol002.md         # 卷2 大纲
+└── chapters/
+    ├── ch0001.md         # 章细纲(生成后永久保留, 不被下一章覆盖)
+    └── ch0002.md
+```
+
+- 章细纲**生成后保留为独立文件**, 供 Writer/Reviewer 参考、供回读历史规划。
+- 新增章节规划 = 新建文件, 不覆盖旧文件。
+
+## 6. 记忆文件格式
+
+### memory/summaries/chNNNN.md(每章一文件)
 
 ```markdown
-## ch001 初入星城
+---
+chapter: 1
+---
 摘要: 林小满来到星城, 遇到老陈, 得知城主失踪。
 关键事件: [星城夜景, 老陈身份成谜]
 伏笔: 城主的戒指(未解释)
-
-## ch002 夜市风波
-摘要: …
-## ch003(草稿) …
-(旧章节摘要会由 LLM 定期合并压缩成"第1-10章总览")
 ```
 
-### characters.md(人物状态)
+### memory/index.md(记忆索引, 快速检索)
+
+```markdown
+# 记忆索引
+## 章节摘要
+| 章节 | 摘要文件 | 一句话 |
+|---|---|---|
+| ch0001 | memory/summaries/ch0001.md | 初入星城, 遇老陈 |
+| ch0002 | memory/summaries/ch0002.md | 夜市风波, 获戒指 |
+## 人物
+| 名字 | 设定文件 | 状态文件 |
+## 伏笔
+| ID | 状态 | 文件 |
+```
+
+> 索引由程序/LLM 维护, 用于快速定位, 不承载内容本身。
+
+### memory/characters.md(人物当前状态, 派生)
 
 ```markdown
 ## 林小满
@@ -96,88 +155,93 @@ data/novels/<project_id>/
 - 现状: 在星城落脚, 与老陈同行, 持有城主戒指
 - 关系: 老陈(导师级伙伴), 陈小刀(敌对)
 - 情绪: 警惕 → 开始信任老陈
-- 关键记忆: 记得原世界的音乐
 ```
 
-### world.md(世界状态)
+### memory/foreshadowing/(伏笔索引)
 
 ```markdown
-## 星城
-- 现状: 城主失踪, 治安由商会接管
-- 最近变化: 夜市风波后警戒加强
-- 势力: 商会(表面), 黑市(暗)
+# 伏笔
+| ID | 伏笔 | 埋设章 | 状态 | 计划回收章 | 文件 |
+|---|---|---|---|---|---|
+| F001 | 城主的戒指 | ch0001 | open | ~ch0015 | memory/foreshadowing/F001.md |
 ```
 
-### timeline.md(时间线)
+### 其他派生文件
 
-```markdown
-| 章 | 时间 | 事件 |
+- `memory/world.md` — 世界当前状态(动态)
+- `memory/timeline.md` — 时间线索引(表格)
+- `memory/long_term.md` — 长期记忆摘要(写作约定/设定沉淀)
+
+## 7. 章节状态机
+
+```
+DRAFT ──write──→ REVIEWING ──reviewer PASS──→ READY ──user confirm──→ USER_CONFIRMED ──收编──→ CONFIRMED
+  │                    │                          │
+  └──编辑──→ DRAFT     └──reviewer NEEDS_WORK──→ DRAFT(重写循环 ≤K 轮)
+```
+
+| 状态 | 含义 | 谁能进入 |
 |---|---|---|
-| ch1 | 入城当夜 | 遇见老陈 |
-| ch2 | 次日 | 夜市风波, 获得戒指 |
-```
+| `DRAFT` | 草稿(写作中/可编辑) | Writer 创建 |
+| `REVIEWING` | 提交审稿 | 主编/用户提交 |
+| `READY` | Reviewer 通过, 等待用户确认 | Reviewer PASS |
+| `USER_CONFIRMED` | 用户已确认 | 用户确认动作 |
+| `CONFIRMED` | 已收编: 移入 chapters/、更新 current_chapter、更新记忆 | 收编流程 |
 
-### foreshadowing.md(伏笔登记)
+**关键规则**:
+- **Reviewer PASS ≠ 用户接受**。PASS 只进入 READY。
+- 只有 **USER_CONFIRMED → CONFIRMED** 才会:
+  - 草稿移入正式 `chapters/`
+  - 更新 `project.json` 的 `current_chapter`
+  - 触发正式记忆更新(摘要/人物/世界/时间线/伏笔)
+- `auto_accept: false` 时, 即使 Reviewer 通过, 也要用户确认; `true`(未来)时 READY 自动收编。
+- 用户主动拒绝 → 回到 DRAFT(可保留草稿供修改)。
 
-```markdown
-| ID | 伏笔 | 埋设章 | 状态 | 计划回收章 |
-|---|---|---|---|---|
-| F001 | 城主的戒指 | ch1 | open | ~ch15 |
-| F002 | 老陈的过去 | ch2 | open | 卷2 |
-```
+## 8. 历史快照(.history/)
 
-### long_term.md(长期记忆)
+- 目录: `data/novels/<id>/.history/`, 不参与记忆重建, 不进正式数据。
+- 快照内容: 每次 AI 写入前的旧文件副本(章节/大纲/人物/世界/记忆)。
+- 命名: `<时间戳>_<相对路径>.bak`(或按操作序列号)。
+- 命令: `undo-last-change`(取最近快照回滚)。
+- 只保留最近 N 份(默认 50), 超出清理最旧(防膨胀)。
 
-```markdown
-## 写作约定(用户设定)
-- 不写血腥细节
-- 主角不降智
-## 设定沉淀
-- 星城货币: 星贝
-- 星城特有: 会唱歌的灯
-```
-
-## 5. 配置(全局 config/settings.json)
+## 9. 配置(全局 config/settings.json — 不含真实密钥)
 
 ```json
 {
   "default_model": {
+    "provider": "openai_compatible",
     "base_url": "https://api.deepseek.com/v1",
-    "api_key": "sk-…",          // 本地存储, 权限 600
-    "model": "deepseek-chat"
+    "model": "deepseek-chat",
+    "secret_reference": "deepseek-main"
   },
-  "models": {
-    "writer": { "base_url": "...", "api_key": "...", "model": "..." },
-    "reviewer": { "base_url": "...", "api_key": "...", "model": "..." }
-  },
+  "models": { "writer": {…}, "reviewer": {…} },
   "context": {
+    "reserve_output_tokens": 4096,
     "max_recent_chapters": 5,
-    "max_recent_text_chars": 3000,
-    "summary_chapter_batch": 10
+    "max_recent_text_chars": 3000
   },
-  "workflow": {
-    "max_review_rounds": 3,
-    "max_tool_calls_per_turn": 8
-  }
+  "workflow": { "max_review_rounds": 3, "max_tool_calls_per_turn": 8 },
+  "history": { "max_snapshots": 50 },
+  "auto_accept": false
 }
 ```
 
-> 角色级模型可选(如 Writer 用便宜的模型, Chief 用强的); 缺省继承 default_model。
+> API Key 走 SecretStore(见 PROVIDERS §3), 此处只有 `secret_reference`。
 
-## 6. 数据一致性规则
+## 10. 数据一致性规则
 
-- 章节正文是**唯一真相源**; 记忆是**派生数据**(可随时从正文重建)。
-- 每次章节确认后: 更新 current_chapter / 生成摘要 / 增量更新人物与世界状态 / 追加时间线 / 登记伏笔。
-- 记忆文件均由 LLM 增量维护, 提供 `rebuild-memory` 命令全量重建(容错)。
-- 所有写操作: 临时文件 + rename, 防半截。
+- 章节正文等事实源是**唯一真相**; 记忆是**派生数据**(可随时 `rebuild-memory`)。
+- 章节状态机由 Workflow 严格驱动; current_chapter 只在 CONFIRMED 时更新。
+- 所有写操作: 临时文件 + rename; AI 写前先快照到 .history/。
+- `rebuild-memory` 只允许操作 memory/ 目录(程序级强制)。
 
-## 7. 文件规模估算(长篇)
+## 11. 文件规模估算(长篇)
 
 | 文件 | 规模(200 万字书) |
 |---|---|
 | chapters/*.md | 2000 章 × 1K 字 ≈ 2MB |
-| chapter_summaries.md | 滚动保留 ≈ 100KB |
-| characters.md | ≈ 20KB |
-| 其余记忆 | < 100KB 合计 |
+| memory/summaries/ | 2000 个文件 × 300 字 ≈ 600KB |
+| 其余记忆/大纲 | < 200KB 合计 |
 
-→ 全书本地存储 < 5MB, 备份/迁移无压力。
+→ 全书本地存储 < 5MB; 每章摘要独立文件, 检索/更新只动相关文件, 不整文件重写。

@@ -6,85 +6,115 @@
 - 同一套代码适配: OpenAI、DeepSeek、Qwen(阿里)、Moonshot、OpenRouter、本地 Ollama 等。
 - 不绑定任何厂商 SDK, 纯 HTTP 调用。
 
-## 2. 配置
+## 2. 配置(settings.json — 不含任何真实密钥)
 
-`config/settings.json`(见 DATA_MODEL §5):
+`config/settings.json` **只保存非敏感配置**, 真实 API Key 一律经 SecretStore(见 §3):
 
 ```json
 {
-  "default_model": { "base_url": "https://api.deepseek.com/v1", "api_key": "…", "model": "deepseek-chat" },
-  "models": { "writer": {…}, "reviewer": {…} }
+  "default_model": {
+    "provider": "openai_compatible",
+    "base_url": "https://api.deepseek.com/v1",
+    "model": "deepseek-chat",
+    "temperature": 0.8,
+    "capabilities": { "tool_calls": true, "vision": false, "max_context_tokens": 128000 },
+    "secret_reference": "deepseek-main"
+  },
+  "models": {
+    "writer":   { "provider": "openai_compatible", "base_url": "...", "model": "...", "secret_reference": "deepseek-main" },
+    "reviewer": { "provider": "openai_compatible", "base_url": "...", "model": "...", "secret_reference": "deepseek-main" }
+  }
 }
 ```
 
-- `api_key` 可为空字符串 → 跳过 Authorization 头(本地 Ollama 等无需 Key)。
-- `base_url` 末尾 `/` 处理: 统一拼 `/chat/completions`。
-- 支持环境变量覆盖(便于非交互场景): `NOVEL_BASE_URL`, `NOVEL_API_KEY`, `NOVEL_MODEL`。
+### 禁止事项(硬性规则)
 
-## 3. 客户端接口
+- 真实 API Key **不进入** settings.json
+- **不进入** Git(含 .ai-handoff、checkpoint)
+- **不进入** 日志 / 报错信息
+- **不进入** 小说数据目录(data/novels/)
+- **不进入** 任何本项目文件(除 SecretStore 存储本身, 见下)
+
+## 3. SecretStore(密钥安全存储抽象)
 
 ```python
-# llm/client.py
-class LLMClient:
-    def __init__(self, cfg: ModelConfig, http_timeout=120): ...
-    def chat(self, messages, model=None, temperature=None, stream=True, tools=None)
-        -> StreamingResult | CompletionResult
-    def count_tokens(self, text) -> int   # 估算(字符/2 或 tiktoken 可选)
-
-# 统一返回:
-#   - text: 最终文本
-#   - tool_calls: [{id, name, arguments_json}]
-#   - usage: {prompt_tokens, completion_tokens}
-#   - error: 结构化错误(超时/限流/网络/无效Key)
+# llm/secret_store.py
+class SecretStore:
+    """平台无关的密钥存储抽象。"""
+    def get(self, reference: str) -> str | None: ...
+    def set(self, reference: str, value: str) -> None: ...
+    def delete(self, reference: str) -> None: ...
+    def exists(self, reference: str) -> bool: ...
 ```
 
-## 4. 请求示例
+### 后端(第一版)
 
-```http
-POST {base_url}/chat/completions
-Authorization: Bearer {api_key}
-Content-Type: application/json
+| 优先级 | 后端 | 说明 |
+|---|---|---|
+| 1 | **系统凭据管理器** | Windows: Credential Manager(Python `keyring` 库, 后端 win32 加密); macOS: Keychain; Linux: Secret Service |
+| 2 | **环境变量** | 开发/CI 模式: `NOVEL_API_KEY`, `NOVEL_WRITER_API_KEY`, `NOVEL_REVIEWER_API_KEY`; 环境变量命中时优先于 SecretStore 读取(便于脚本) |
 
-{
-  "model": "deepseek-chat",
-  "messages": [
-    {"role": "system", "content": "…"},
-    {"role": "user", "content": "…"}
-  ],
-  "temperature": 0.8,
-  "stream": true,
-  "tools": [ … ]          # 可选
-}
+> 实现策略: 先尝试 keyring; 若系统无凭据服务(如 headless Linux), 明确提示用户改用环境变量, **不降级为明文文件**。
+
+### 读取优先级
+
+```
+1. 环境变量(若存在) → 用环境变量的值
+2. SecretStore.get(secret_reference) → 用存储值
+3. 都没有 → 提示用户配置(config set-key 命令交互输入, 不回显)
 ```
 
-流式: 解析 SSE `data:` 行, 累积 `delta.content` / `delta.tool_calls`。
+### CLI 配置命令(Key 输入不回显)
+
+```
+$ python -m app config set-key deepseek-main
+API Key: ********          ← 不回显, 写入 SecretStore
+```
+
+## 4. 客户端接口
+
+```python
+# llm/client.py — 内部统一数据模型, 与具体 HTTP 格式解耦
+class ChatMessage:      # role/content/tool_calls/tool_call_id
+class ToolCall:         # id/name/arguments_json
+class Usage:            # prompt_tokens/completion_tokens
+class ChatResult:       # text/tool_calls/usage/error
+
+class BaseProvider(ABC):
+    def chat(self, messages, model, temperature, stream, tools) -> ChatResult: ...
+    def estimate_tokens(self, text) -> int: ...
+
+class OpenAICompatibleProvider(BaseProvider):  # 第一版唯一实现
+    # 内部处理 /chat/completions HTTP + SSE 流式 + tool_calls 解析
+    # 统一转换成上面的内部模型后再交给 Agent Runtime
+```
+
+- **Agent Runtime 只依赖 `BaseProvider` 接口**, 不感知 OpenAI HTTP JSON 格式。
+- 后续新增 `AnthropicProvider` / `GeminiProvider` 只需实现 BaseProvider(第一版**不实现**, 仅预留接口)。
+- 流式: 解析 SSE `data:` 行, 累积 delta, 边累积边产出文本; tool_calls 流式段按 index 聚合。
 
 ## 5. 错误处理
 
 | 错误 | 识别 | 处理 |
 |---|---|---|
 | 网络/超时 | 连接异常 / 读取超时 | 重试 1 次(指数退避 2s) → 报错给用户 |
-| 401/403 | HTTP 401/403 | 明确提示"API Key 无效或权限不足", 不重试 |
-| 429 限流 | HTTP 429 / 响应含 rate_limit | 等待重试(可选, 默认提示用户) |
+| 401/403 | HTTP 401/403 | 明确提示"API Key 无效或权限不足"(绝不含 Key), 不重试 |
+| 429 限流 | HTTP 429 / rate_limit | 提示用户稍后重试(可选等待) |
 | 5xx | 500/502/503 | 重试 1 次 → 报错 |
-| 模型不存在 | 400 含 model 相关错误 | 提示检查 model 名 |
-| 上下文超长 | 400 含 context/token 相关 | 触发上下文裁剪(缩小上下文包)后重试 1 次 |
+| 模型不存在 | 400 含 model 相关 | 提示检查 model 名 |
+| 上下文超长 | 400 含 context/token 相关 | 触发动态预算裁剪(ARCHITECTURE §4)后重试 1 次 |
 
-- 所有错误**不输出 Key**, 不输出完整请求体。
-
-## 6. 模型能力协商(简化)
-
-第一版不做能力探测, 提供手动配置项:
+## 6. 模型能力(手动配置, 不做自动探测)
 
 ```json
 "capabilities": { "tool_calls": true, "vision": false, "max_context_tokens": 128000 }
 ```
 
 - `tool_calls: false` → 运行时跳过 tools 参数(纯文本模式, 兼容弱模型)。
-- `max_context_tokens` → 上下文包预算上限(默认按 128K 模型 25% 预留)。
-- 可选 `reasoning` 开关(若用户模型支持, 在请求中加 `reasoning_effort`/`thinking` 参数, 由适配器按模型名判断, 参考逆向研究中常见的模型差异处理思想)。
+- `max_context_tokens` → 动态预算输入(ContextBudget)的上限参考值。
+- 可选 `reasoning` 开关: 若用户模型支持, 由适配层按模型名决定是否附加 `reasoning_effort`/`thinking` 参数(模型差异处理, 与具体厂商无关的通用适配思想)。
 
-## 7. 已验证兼容性目标(第一版发布时测试)
+## 7. 兼容性目标(第一版发布时测试)
 
 | 服务 | Base URL 示例 | 备注 |
 |---|---|---|
@@ -93,17 +123,19 @@ Content-Type: application/json
 | Qwen (DashScope 兼容) | https://dashscope.aliyuncs.com/compatible-mode/v1 | OpenAI 兼容模式 |
 | Moonshot | https://api.moonshot.cn/v1 | - |
 | OpenRouter | https://openrouter.ai/api/v1 | 中转 |
-| Ollama (本地) | http://127.0.0.1:11434/v1 | 无需 Key |
+| Ollama (本地) | http://127.0.0.1:11434/v1 | 无需 Key(secret_reference 可省略) |
 
-> 这些是公开通用端点, 与任何商业软件无关; 各服务是否支持 tool_calls 由用户自行确认。
+> 公开通用端点, 与任何商业软件无关; tool_calls 支持由用户确认。
 
 ## 8. 用量统计(本地)
 
 - 每次调用记录到 `data/logs/usage.jsonl`: 时间/模型/prompt_tokens/completion_tokens/耗时。
-- 提供 `usage` 命令查看累计(纯本地, 无任何上报)。
+- `usage` 命令查看累计(纯本地, 不上报)。
 
-## 9. 安全
+## 9. 安全清单(实现时逐条检查)
 
-- Key 只在请求头使用, 永不写入日志/报错/记忆文件。
-- settings.json 文件权限建议 600(写入时尝试 chmod)。
-- 首次连接做最小验证: 空对话请求(或 models 列表若支持), 确认可达后才进入主流程。
+- [ ] settings.json 无真实 Key
+- [ ] SecretStore 后端 = 系统凭据管理器(环境变量为开发模式)
+- [ ] 日志/报错/记忆文件无 Key
+- [ ] checkpoint 安全扫描包含 SecretStore 相关规则(不可检出 Key 值)
+- [ ] 首次连接验证: 空对话请求确认可达

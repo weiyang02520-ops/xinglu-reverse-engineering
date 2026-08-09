@@ -55,40 +55,45 @@
 | 组件 | 选择 | 理由 |
 |---|---|---|
 | 语言 | Python 3.11+ | 快速原型, AI 生态好, 无编译 |
-| UI | 第一阶段 CLI + 后续可选 TUI/Web | M0–M2 用 CLI 最快验证; Web UI 留给 M3+ 增值 |
-| 存储 | 文件系统 + JSON | 可读、可备份、可 diff |
-| AI 协议 | OpenAI Chat Completions 兼容 | 覆盖 DeepSeek/Qwen/OpenRouter/Ollama/OpenAI 等 |
+| 核心引擎 | Core Engine(无 UI 依赖) | Project/Memory/Agent Runtime/Workflow/Tools/Providers 分层 |
+| UI | Adapter 层: CLI(M0–M7 测试用) + Desktop UI(以后) | Core 不依赖终端/窗口, 换 UI 不重写核心 |
+| 存储 | 文件系统 + JSON(明文, 无数据库) | 可读、可备份、可 diff |
+| AI 协议 | BaseProvider 接口 + OpenAI 兼容实现(第一版) | 预留 Anthropic/Gemini 接口, 不实现 |
+| 密钥 | SecretStore(系统凭据管理器) | settings.json 只存 secret_reference |
 | 工作流 | 本地进程内编排 | 无队列/无服务端 |
 
-> 注: 若后续要桌面 GUI, 可参考一般 Electron 架构思想, 但第一版不做。
+> CLI 只是 M0–M7 的**测试入口**, 不是最终架构。Core 层不得依赖 argparse/click/终端输入输出。
 
 ## 7. 目录结构(草案)
 
 ```
 ai-novel/
-├── app/                    # 应用入口
-│   └── main.py             # CLI 入口
-├── core/                   # 领域逻辑
-│   ├── project.py          # 项目管理
-│   ├── chapter.py          # 章节读写
-│   ├── memory.py           # 记忆(摘要/人物/世界/时间线/伏笔)
-│   ├── outline.py          # 大纲
-│   └── workflow.py         # 主编→Writer→Reviewer 流程
-├── agents/                 # Agent 定义
-│   ├── chief.py            # 主编
-│   ├── writer.py           # Writer
-│   └── reviewer.py         # Reviewer
-├── llm/                    # 模型接入
-│   ├── client.py           # OpenAI 兼容客户端(自定义 Base URL/Key/Model)
-│   ├── context.py          # 上下文组装(记忆压缩/裁剪)
-│   └── prompts.py          # 提示词模板
-├── tools/                  # 工具系统(Agent 可调用)
-│   ├── read_file.py
-│   ├── write_file.py
-│   └── search_memory.py
-├── config/                 # 用户配置
-│   └── settings.json       # 模型配置等
-└── data/                   # 本地数据(小说项目)
+├── core/                    # ⭐ Core Engine(无 UI 依赖)
+│   ├── project.py           # 项目管理
+│   ├── chapter.py           # 章节读写
+│   ├── memory.py            # 记忆(摘要/人物状态/世界状态/时间线/伏笔)
+│   ├── outline.py           # 大纲
+│   ├── workflow.py          # 主编→Writer→Reviewer 流程
+│   └── context_budget.py    # 动态上下文预算
+├── agents/                  # Agent 定义
+│   ├── chief.py             # 主编
+│   ├── writer.py            # Writer
+│   ├── reviewer.py          # Reviewer
+│   └── runtime.py           # Agent 运行时(依赖 BaseProvider)
+├── llm/                     # 模型接入(Core 底层)
+│   ├── provider.py          # BaseProvider 接口(内部数据模型)
+│   ├── openai_compatible.py # OpenAI 兼容实现(第一版唯一)
+│   ├── secret_store.py      # SecretStore(系统凭据管理器/环境变量)
+│   └── prompts.py           # 提示词模板
+├── tools/                   # 工具系统
+│   ├── registry.py          # 注册/权限/路径校验
+│   └── history.py           # .history/ 快照与 undo
+├── adapters/                # ⭐ Adapter 层(可替换)
+│   ├── cli/                 # CLI Adapter(M0-M7 测试入口)
+│   └── (desktop/ 以后实现)
+├── config/                  # 用户配置(非敏感)
+│   └── settings.json        # provider/base_url/model/temperature/secret_reference
+└── data/                    # 本地数据(小说项目)
     └── novels/<project_id>/
 ```
 
@@ -100,6 +105,6 @@ ai-novel/
 
 ## 9. 成功标准
 
-- 用户用自己任意 OpenAI 兼容 Key, 能完成: 建小说 → 写大纲 → 主编对话 → 生成一章 → 审稿 → 保存。
-- 一本 200 万字长篇的创作过程中, 单次请求的上下文保持在可控范围内(靠记忆系统, 见 ARCHITECTURE.md)。
-- 所有数据可离线导出/备份(纯文件)。
+- 用户用自己任意 OpenAI 兼容 Key(经 SecretStore 配置), 能完成: 建小说 → 写大纲 → 主编对话 → 生成一章 → 审稿 → **用户确认** → 保存。
+- 一本 200 万字长篇的创作过程中, 单次请求的上下文由 ContextBudget 动态控制(靠记忆系统, 见 ARCHITECTURE.md)。
+- 所有数据可离线导出/备份(纯文件); 真实 API Key 不出现在任何项目文件/日志/Git 中。

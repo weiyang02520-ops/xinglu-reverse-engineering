@@ -248,8 +248,10 @@ HANDOFF_TEMPLATE = """# Project Handoff
 ## 12. Git 信息
 
 - Branch: {branch}
-- HEAD: {head_short} {head_subject}
-- 最近 commit: {last_commit}
+- checkpoint_base_commit: {head_short} {head_subject}
+  (checkpoint 开始前的工作区 HEAD; 最新 checkpoint commit 以 GitHub 仓库 HEAD 为准)
+- GitHub 仓库可见性: {repo_visibility}(真实查询; 无法获取时显示 unknown)
+- 最近 commit(本文件生成时): {last_commit}
 - 时间: {now}
 
 ## 13. Critical Files
@@ -316,6 +318,36 @@ def write_project_state(state, path):
     open(path, "w", encoding="utf-8").write("\n".join(lines))
 
 
+def get_repo_visibility():
+    """查询 GitHub 仓库真实可见性(private/public)。
+
+    优先 gh CLI(用户已登录), 失败则尝试无 token 的公开 API 探测:
+    - API 返回 visibility → 采用
+    - 无法可靠获取 → 返回 "unknown"(不猜测)
+    """
+    try:
+        code, out, _ = run(["gh", "api", "repos/weiyang02520-ops/xinglu-reverse-engineering", "--jq",
+                            "{private: .private, visibility: .visibility}"], timeout=30)
+        if code == 0 and out:
+            import json as _json
+            d = _json.loads(out)
+            if "visibility" in d:
+                return d["visibility"]
+    except Exception:
+        pass
+    try:
+        import urllib.request
+        with urllib.request.urlopen(
+            "https://api.github.com/repos/weiyang02520-ops/xinglu-reverse-engineering",
+            timeout=10,
+        ) as resp:
+            import json as _json
+            d = _json.loads(resp.read().decode())
+            return d.get("visibility", "unknown")
+    except Exception:
+        return "unknown"
+
+
 def update_handoff(summary, changes, stats):
     """基于 PROJECT_STATE.md + git 事实, 重写 HANDOFF.md 与 STATUS.md。
 
@@ -344,6 +376,9 @@ def update_handoff(summary, changes, stats):
     _, last_commit, _ = git("log", "-1", "--format=%h %ci")
     head_short = (head_long or "?")[:12]
 
+    # GitHub 真实可见性(不依赖手写状态)
+    repo_visibility = get_repo_visibility()
+
     # 重写 HANDOFF.md
     handoff = HANDOFF_TEMPLATE.format(
         project_goal=state["project_goal"],
@@ -363,6 +398,7 @@ def update_handoff(summary, changes, stats):
         head_short=head_short,
         head_subject=head_subject or "?",
         last_commit=last_commit or "?",
+        repo_visibility=repo_visibility,
         now=now,
     )
     with open(os.path.join(HANDOFF_DIR, "HANDOFF.md"), "w", encoding="utf-8") as f:

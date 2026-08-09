@@ -76,3 +76,31 @@
 - `?? .ai-handoff/checkpoints/2026-08-09_15-23.md`
 - `?? clean-room/`
 
+
+## 2026-08-09 15:35 — Checkpoint
+
+摘要: test visibility
+
+- `M scripts/ai_checkpoint.py`
+
+
+## 2026-08-09 15:38 — Checkpoint
+
+摘要: add 2 new files
+
+- `M .ai-handoff/CHANGELOG_AI.md`
+- ` M .ai-handoff/HANDOFF.md`
+- ` M .ai-handoff/PROJECT_STATE.md`
+- ` M .ai-handoff/STATUS.md`
+- ` M clean-room/AGENT_RUNTIME.md`
+- ` M clean-room/ARCHITECTURE.md`
+- ` M clean-room/CLEAN_ROOM_SPEC.md`
+- ` M clean-room/DATA_MODEL.md`
+- ` M clean-room/MVP_PLAN.md`
+- ` M clean-room/PROJECT_FORMAT.md`
+- ` M clean-room/PROVIDERS.md`
+- ` M clean-room/TOOL_SYSTEM.md`
+- ` M scripts/ai_checkpoint.py`
+- `?? .ai-handoff/checkpoints/2026-08-09_15-35.md`
+- `?? clean-room/REVIEW_FIXES.md`
+

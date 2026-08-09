@@ -18,16 +18,15 @@
 
 ## last_round
 
-- 修复 AI checkpoint 交接同步逻辑: 引入单一事实源 `.ai-handoff/PROJECT_STATE.md`, 脚本每次 checkpoint 强制重写 HANDOFF.md 与 STATUS.md, 保证「实际项目状态 = HANDOFF = STATUS」一致。
-- 完成 clean-room/ 自研小说 AI 软件设计文档(8 个文件: CLEAN_ROOM_SPEC / ARCHITECTURE / DATA_MODEL / AGENT_RUNTIME / TOOL_SYSTEM / PROVIDERS / PROJECT_FORMAT / MVP_PLAN), 仅设计, 未写任何软件代码。
+- 按外部模型第一轮审核意见完成 10 条修订(详见 clean-room/REVIEW_FIXES.md): ① 仓库可见性以 API 实时查询为准(当前实测 public) ② HANDOFF 改用 checkpoint_base_commit ③ SecretStore 密钥安全存储 ④ Core Engine + Adapter 分层 ⑤ 长期可扩展文件结构 ⑥ 事实源/派生记忆分离 ⑦ 五状态章节状态机 ⑧ ContextBudget 动态预算 ⑨ BaseProvider 适配层 ⑩ .history/ + undo-last-change。
+- checkpoint 脚本同步逻辑修复(见上轮)继续生效; 本轮新增可见性实时查询与 commit 语义修正。
 
 ## verified
 
-- 逆向分析全部 22 阶段完成: 安装包三层解包(438 文件), 技术栈(Electron+React+Vite+Capacitor), 150 IPC 通道, 20+ API 端点, 22 桥命令, 26 AI 工具, 数据模型, 本地存储, 重建可读工程(17 文件)。
-- FINAL_REPORT.md 与 EVIDENCE_INDEX.md 已生成。
-- Git 私有仓库 `weiyang02520-ops/xinglu-reverse-engineering`(PRIVATE)已同步。
-- checkpoint 脚本同步逻辑已修复并本地验证(HANDOFF/STATUS 由 PROJECT_STATE 强制重写)。
-- checkpoint 脚本已实测: 无变化不建空 commit / 安全扫描拦截假 Key / 定时模式阈值 / 真实 push 成功。
+- 逆向分析全部 22 阶段完成(详见前轮)。
+- 10 条审核修订全部完成, clean-room 8 文档 + REVIEW_FIXES.md 已更新。
+- checkpoint 脚本: 可见性实时查询实测返回 public; HANDOFF checkpoint_base_commit 语义验证通过。
+- Git 私有仓库(注: 经 API 实测当前可见性为 **public**, 非手写状态; 是否改回 Private 由用户决定)已同步。
 
 ## unverified
 
@@ -47,9 +46,9 @@
 
 ## known_issues
 
-- 旧 HANDOFF/STATUS 内容过期问题已修复(改为强制重写); 旧 checkpoint 快照仍保留(历史记录, 不回改)。
-- clean-room 设计尚未外部评审。
-- ChatGPT 对私有仓库的访问需用户手动授权 App(已知步骤, 未代做)。
+- **GitHub 仓库当前可见性为 public**(API 实测) — 若需私有请用户在 GitHub 网页端修改(Settings → Danger Zone → Change visibility), 我未擅自改动。
+- ChatGPT GitHub App 授权仍未操作(用户待办)。
+- clean-room 设计等待第二轮外部审核。
 
 ## key_decisions
 
@@ -59,17 +58,19 @@
 
 ## next_steps
 
-- P0: 提交 clean-room 设计给外部模型审核(REVIEW_REQUEST.md 已备好审查指引)。
-- P1: 按审核意见修订设计文档。
+- P0: 提交第二轮审核(clean-room/REVIEW_FIXES.md 记录了修订; REVIEW_REQUEST.md 备好审查指引)。
+- P0(用户): 决定仓库可见性(private/public)。
+- P1: 按第二轮意见修订。
 - P2: 审核通过后开始 M0 开发(软件能启动), 每里程碑实际运行验证后再进入下一里程碑。
 
 ## review_focus
 
-- clean-room 设计是否与 XingLu 干净分离(不使用其 API/资产/商标, 仅借鉴通用架构思想)。
-- 长篇小说上下文管理设计(章节摘要/人物状态/世界状态/时间线/伏笔/长期记忆)是否可行。
-- 最小流程 主编→Writer→Reviewer 的 Agent 运行时设计是否自洽。
-- MVP 范围是否克制(无手机端/发布/会员/媒体生成)。
-- 里程碑 M0–M7 每步可独立验证的标准是否明确。
+- 10 条修订是否全部落实、是否引入新问题(REVIEW_FIXES.md 对照)。
+- SecretStore 设计是否安全(Key 不出现在任何文件/日志)。
+- Core/Adapter 分层是否彻底(Core 是否还有 UI 依赖)。
+- 五状态章节状态机与事实源/派生记忆边界是否自洽。
+- ContextBudget 优先级策略是否合理。
+- 仓库可见性变更是否需要反映到文档(现在由脚本实时查询, 不手写)。
 
 ## critical_files
 
