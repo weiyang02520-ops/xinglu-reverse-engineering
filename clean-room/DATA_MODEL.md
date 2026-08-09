@@ -182,7 +182,7 @@ DRAFT ──write──→ REVIEWING ──reviewer PASS──→ READY ──us
 
 | 状态 | 含义 | 谁能进入 |
 |---|---|---|
-| `DRAFT` | 草稿(写作中/可编辑) | Writer 创建 |
+| `DRAFT` | 草稿(写作中/可编辑) | Writer 创建 / 用户手动创建 |
 | `REVIEWING` | 提交审稿 | 主编/用户提交 |
 | `READY` | Reviewer 通过, 等待用户确认 | Reviewer PASS |
 | `USER_CONFIRMED` | 用户已确认 | 用户确认动作 |
@@ -196,6 +196,18 @@ DRAFT ──write──→ REVIEWING ──reviewer PASS──→ READY ──us
   - 触发正式记忆更新(摘要/人物/世界/时间线/伏笔)
 - `auto_accept: false` 时, 即使 Reviewer 通过, 也要用户确认; `true`(未来)时 READY 自动收编。
 - 用户主动拒绝 → 回到 DRAFT(可保留草稿供修改)。
+
+### 两条确认路径(重要)
+
+**A. 用户手动创建/编辑的章节(M1 起可用)**
+- 用户显式执行 `confirm` = "这是用户本人确认的正文"
+- 允许: `DRAFT → USER_CONFIRMED → CONFIRMED`
+- 无需 Reviewer(章节不是 AI 生成的, 用户已亲自确认)
+
+**B. AI Writer 生成的章节(M5 起)**
+- 必须: `DRAFT → REVIEWING → READY → USER_CONFIRMED → CONFIRMED`
+- **禁止 AI 绕过 Reviewer 直接确认**(无论 auto_accept 与否)
+- 程序层强制: AI 写入的草稿, confirm 命令必须先经过 READY 状态
 
 ## 8. 历史快照(.history/)
 

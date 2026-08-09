@@ -70,7 +70,7 @@ graph TB
 
 **原则: 全书永不整体进入 prompt; 预算按模型动态计算。**
 
-### ContextBudget 计算
+### ContextBudget 计算(含硬上限)
 
 ```
 可用上下文 = max_context_tokens(模型能力配置)
@@ -81,16 +81,38 @@ graph TB
 输入预算上限 → 按优先级逐段填充上下文包, 超出部分裁剪
 ```
 
+**恒等式(必须永远成立)**:
+
+```
+system_prompt + input_context + tool_results + reserve_output ≤ max_context_tokens
+```
+
+**每类上下文都有硬上限**(P0 是最高优先级, 不是无限大小):
+
+| 类别 | 优先级 | 硬上限(默认, 可配置) |
+|---|---|---|
+| current_chapter_plan(当前章细纲) | P0 | 2000 token |
+| active_characters(当前人物) | P0 | 2000 token |
+| recent_text(最近正文节选) | P0 | 4000 token |
+| current_volume_outline(当前卷大纲) | P1 | 3000 token |
+| foreshadowing(活跃伏笔) | P1 | 1200 token |
+| memory(最近摘要等) | P1/P2/P3 | 3000 token(按优先级裁剪) |
+| world_state(世界状态) | P2 | 1500 token |
+| long_term(长期记忆) | P2 | 1200 token |
+
+- 每类在预算内各自截断; 若 P0 合计已超过输入预算上限, **优先压缩/摘要 P0**(而非整体超预算请求)。
+- 压缩策略: 截断到类上限 → 仍超则 LLM 摘要(单段) → 仍超则错误提示用户缩小任务范围。
+
 ### 上下文优先级
 
 | 优先级 | 内容 | 来源 | 裁剪策略 |
 |---|---|---|---|
-| **P0** | 当前章细纲 / 当前人物设定 / 最近正文(2 章结尾) | outline/chapters/、characters/、chapters/ | 不可裁剪(或截断到最小) |
+| **P0** | 当前章细纲 / 当前人物设定 / 最近正文(2 章结尾) | outline/chapters/、characters/、chapters/ | 类硬上限内不可再丢(只可压缩) |
 | **P1** | 当前卷大纲 / 活跃伏笔 / 最近章节摘要 | outline/volumes/、memory/foreshadowing/、memory/summaries/ | 按预算截断 |
 | **P2** | 世界状态 / 长期记忆 / 人物状态 | memory/world/、memory/long_term.md、memory/characters/ | 只放摘要 |
 | **P3** | 较旧相关章节摘要 / 完整历史 | memory/summaries/ | 超出即丢弃(或单条超短) |
 
-> 25-30K token 不是固定默认值, 只是"大上下文模型"场景下由预算算出的可能结果。小上下文模型(如 32K)自动获得更小的输入预算。
+> 25-30K token 不是固定默认值, 只是"大上下文模型"场景下由预算算出的可能结果。小上下文模型(如 32K)自动获得更小的输入预算, 且每类硬上限随之缩放(按比例, 但 P0 硬上限不低于最小值)。
 
 ### 裁剪规则
 
@@ -139,7 +161,7 @@ sequenceDiagram
 - 所有 AI 调用记录请求/响应摘要(不含 Key)到 logs/。
 - 工作流每步写 progress 日志(章节/Agent/轮次/token 估算)。
 - 文件写入用"临时文件 + rename"防半截; AI 修改前自动保留历史快照(见 §7)。
-- 配置校验: 启动时检查 Base URL 可达性(仅 HEAD 请求, 不发数据)。
+- 配置校验(`config validate`)只做本地检查(URL 格式/model/secret_reference/Key 存在性), **不联网**; 连通性测试仅在 `config test-provider`(M2)执行真实最小请求。
 
 ## 7. 数据安全与恢复
 

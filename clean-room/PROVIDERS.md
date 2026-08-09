@@ -132,10 +132,25 @@ class OpenAICompatibleProvider(BaseProvider):  # 第一版唯一实现
 - 每次调用记录到 `data/logs/usage.jsonl`: 时间/模型/prompt_tokens/completion_tokens/耗时。
 - `usage` 命令查看累计(纯本地, 不上报)。
 
-## 9. 安全清单(实现时逐条检查)
+## 9. 配置校验与连通测试(分离)
+
+**`config validate` — 只做本地校验, 不联网**:
+- Base URL 格式是否合法(可解析的 http(s) URL)
+- model 字段是否存在
+- secret_reference 是否存在(或未配置时允许空 Key 的场景, 如本地 Ollama)
+- SecretStore 能否找到对应 Key(存在性检查)
+
+> **不发送任何网络请求**。很多模型 API 不支持 HEAD/OPTIONS, 联网探测会误报。
+
+**`config test-provider` — 真正的联网测试(M2 实现)**:
+- 执行一次最小真实模型请求(如 "你好" 空对话)
+- 成功收到模型回复 → Provider 可用
+- 返回错误(401/404/超时) → 明确提示, 不含 Key
+
+## 10. 安全清单(实现时逐条检查)
 
 - [ ] settings.json 无真实 Key
 - [ ] SecretStore 后端 = 系统凭据管理器(环境变量为开发模式)
 - [ ] 日志/报错/记忆文件无 Key
 - [ ] checkpoint 安全扫描包含 SecretStore 相关规则(不可检出 Key 值)
-- [ ] 首次连接验证: 空对话请求确认可达
+- [ ] config validate 不联网; 联网测试只在 config test-provider

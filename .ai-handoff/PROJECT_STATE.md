@@ -18,15 +18,17 @@
 
 ## last_round
 
-- 按外部模型第一轮审核意见完成 10 条修订(详见 clean-room/REVIEW_FIXES.md): ① 仓库可见性以 API 实时查询为准(当前实测 public) ② HANDOFF 改用 checkpoint_base_commit ③ SecretStore 密钥安全存储 ④ Core Engine + Adapter 分层 ⑤ 长期可扩展文件结构 ⑥ 事实源/派生记忆分离 ⑦ 五状态章节状态机 ⑧ ContextBudget 动态预算 ⑨ BaseProvider 适配层 ⑩ .history/ + undo-last-change。
-- checkpoint 脚本同步逻辑修复(见上轮)继续生效; 本轮新增可见性实时查询与 commit 语义修正。
+- 第二轮审核通过(10 条修订确认落实, 无方向性问题)。
+- 完成审核后小修: ① checkpoint 仓库名不再写死, 从 git remote 自动解析 owner/repo ② 明确两条确认路径(手动 confirm / AI 必须审稿) ③ 删除 Base URL HEAD 探测, config validate 只本地校验 ④ .history 支持 CREATE/UPDATE/DELETE ⑤ ContextBudget 每类硬上限 + 总预算恒等式 ⑥ 更新交接状态。
+- 下一步: 直接进入 M0 开发(独立新目录 ai-novel-studio)。
 
 ## verified
 
 - 逆向分析全部 22 阶段完成(详见前轮)。
-- 10 条审核修订全部完成, clean-room 8 文档 + REVIEW_FIXES.md 已更新。
-- checkpoint 脚本: 可见性实时查询实测返回 public; HANDOFF checkpoint_base_commit 语义验证通过。
-- Git 私有仓库(注: 经 API 实测当前可见性为 **public**, 非手写状态; 是否改回 Private 由用户决定)已同步。
+- 两轮外部审核: 第一轮 10 条修订落实, 第二轮确认通过。
+- checkpoint 脚本: remote 自动解析(4 种 URL 格式测试通过) + 可见性实时查询实测 public。
+- **ChatGPT 已能实际读取 GitHub 仓库**(授权完成)。
+- 小修全部完成(见 REVIEW_FIXES.md 与本轮 last_round)。
 
 ## unverified
 
@@ -47,8 +49,7 @@
 ## known_issues
 
 - **GitHub 仓库当前可见性为 public**(API 实测) — 若需私有请用户在 GitHub 网页端修改(Settings → Danger Zone → Change visibility), 我未擅自改动。
-- ChatGPT GitHub App 授权仍未操作(用户待办)。
-- clean-room 设计等待第二轮外部审核。
+- 逆向仓库将保持为"逆向资料 + clean-room 设计 + 参考档案"; 正式自研软件在独立新仓库(ai-novel-studio)开发。
 
 ## key_decisions
 
@@ -58,10 +59,10 @@
 
 ## next_steps
 
-- P0: 提交第二轮审核(clean-room/REVIEW_FIXES.md 记录了修订; REVIEW_REQUEST.md 备好审查指引)。
-- P0(用户): 决定仓库可见性(private/public)。
-- P1: 按第二轮意见修订。
-- P2: 审核通过后开始 M0 开发(软件能启动), 每里程碑实际运行验证后再进入下一里程碑。
+- **P0: 开始 M0 开发(独立新目录 ai-novel-studio)** — 按 clean-room/MVP_PLAN.md: 工程骨架/Core 与 CLI 分离/配置系统/SecretStore/CLI 可启动; 真实执行 `python -m adapters.cli --help` + `config validate` + 单元测试, 全通过才 M0=PASS。
+- P0: 新项目建立独立 .ai-handoff + checkpoint(已支持 remote 自动解析), push 到新 GitHub 仓库。
+- P1: 新项目外部模型第一次代码审核。
+- (逆向仓库工作结束, 仅维护文档。) — 用户可选: 决定仓库可见性 private/public。
 
 ## review_focus
 

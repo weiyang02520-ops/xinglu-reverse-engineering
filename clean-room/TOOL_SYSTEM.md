@@ -107,22 +107,46 @@ def execute(name, args, ctx) -> str:
 
 > "临时文件 + rename"只防文件写一半, 不防 AI 把正确内容改错。因此**所有 AI 重要写入前先保留旧版本**。
 
-### .history/ 快照机制
+### .history/ 快照机制(支持 CREATE / UPDATE / DELETE)
 
 - 位置: `data/novels/<id>/.history/`
-- 触发: 每次写入类工具执行**之前**, 复制目标文件旧内容 → 快照文件
-- 命名: `<操作序列号>_<相对路径带下划线>.bak`
-- 快照记录(索引): `.history/index.jsonl` — 每行 `{seq, tool, target, timestamp, note}`
-- 保留: 默认最近 50 份(`history.max_snapshots`), 超出清理最旧
+- 触发: 每次写入类工具执行**之前**, 按操作类型快照:
+  - **UPDATE**: 目标文件已存在 → 复制旧内容到快照文件
+  - **CREATE**: 目标文件不存在 → 记录 CREATE 标记(无快照文件, undo 时删除 AI 新建的文件)
+  - **DELETE**: 目标文件存在且将被删除 → 先复制完整旧文件到快照, undo 时恢复
+- 命名: `<operation_id>_<相对路径带下划线>.bak`
+- 索引: `.history/index.jsonl`, 每行一条记录:
+
+```json
+{"operation_id": "000042", "operation_type": "UPDATE", "target": "outline/volumes/vol001.md",
+ "snapshot": "000042_outline_volumes_vol001.md.bak", "timestamp": "2026-08-09T15:00:00Z",
+ "tool": "update_outline", "status": "active"}
+```
+
+| 字段 | 说明 |
+|---|---|
+| operation_id | 单调递增序号 |
+| operation_type | `CREATE` / `UPDATE` / `DELETE` |
+| target | 目标文件相对路径 |
+| snapshot | 快照文件名(CREATE 时为 null) |
+| timestamp | 操作时间 |
+| tool | 触发工具名 |
+| status | `active`(可回滚) / `rolled_back`(已回滚) |
+
+- 保留: 默认最近 50 份(`history.max_snapshots`), 超出清理最旧。
 
 ### undo-last-change
 
 ```
 $ python -m app undo-last-change
-# 读取 .history/index.jsonl 最后一条 → 用快照内容恢复目标文件 → 标记该条已回滚
+# 读取 index.jsonl 最后一条 status=active 的记录:
+#   UPDATE → 用快照内容覆盖目标文件
+#   CREATE → 删除 AI 新建的目标文件(及空父目录, 若变空)
+#   DELETE → 用快照恢复目标文件
+# 标记该条 status=rolled_back
 ```
 
-- 回滚后目标文件状态 = AI 写入前; 被回滚的快照保留(可再次回滚到更早)。
+- 回滚后目标状态 = AI 操作前; 被回滚的快照保留(可继续回滚更早)。
 - 仅支持顺序回滚(一条条 undo), 不做任意点恢复(保持简单)。
 - 用户手动编辑**不**触发快照(只保护 AI 写入)。
 

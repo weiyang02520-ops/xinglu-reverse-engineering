@@ -46,7 +46,8 @@ $ python -m adapters.cli config validate   # 输出配置状态(不联网)
 **范围**
 - Core: `project.create(name)` / `chapter.write(n)` / `chapter.list` / `chapter.read`
 - 目录结构按 PROJECT_FORMAT(4 位章节号, 记忆目录骨架)
-- 章节状态机: draft → confirmed(手动确认路径先行)
+- 章节状态机(手动路径): draft → user_confirmed → confirmed
+- **说明**: M1 尚未实现 Reviewer, 用户手动创建/编辑的章节可显式 `confirm`(即用户本人确认, `DRAFT → USER_CONFIRMED → CONFIRMED`); AI Writer 生成的章节(M5 起)必须走完整审稿路径, 禁止绕过 Reviewer。
 
 **验收(实际运行)**
 ```

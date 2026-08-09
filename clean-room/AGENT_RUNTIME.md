@@ -122,6 +122,10 @@ DRAFT → REVIEWING → READY → USER_CONFIRMED → CONFIRMED
                   ↘ NEEDS_WORK → DRAFT(重写循环)
 ```
 
+**两条确认路径**:
+- **A. 用户手动章节**: `DRAFT → USER_CONFIRMED → CONFIRMED`(用户显式 confirm, 无需 Reviewer — M1 起可用)
+- **B. AI Writer 章节**: 必须 `DRAFT → REVIEWING → READY → USER_CONFIRMED → CONFIRMED`(**禁止 AI 绕过 Reviewer 直接确认** — M5 起; 程序层强制校验: AI 写入的草稿在 READY 前不可 confirm)
+
 失败路径: ERROR(可重试) / ABORTED(用户取消) / ESCALATED(升级主编决策)
 
 ## 7. 提示词模板(prompts.py)

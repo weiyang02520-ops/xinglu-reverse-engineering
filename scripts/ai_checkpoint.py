@@ -159,37 +159,90 @@ def security_scan(force_files=None):
     ]
 
     findings = []
+
+    # 路径级敏感文件黑名单: 按文件名/路径判断, 与内容无关
+    PATH_BLOCK_RE = re.compile(
+        r"(?i)(^|[/\\])(\.env(\..*)?|.*\.key|.*\.pem|.*\.p12|.*\.pfx|"
+        r"credentials?|secrets?|.*\.secret|id_rsa|id_ed25519|auth\.json)(\.|$)"
+    )
+    # 高风险二进制扩展名: 无法扫描内容 → 默认阻止 push(除非显式加入安全白名单)
+    HIGH_RISK_BINARY_EXTS = {
+        ".exe", ".dll", ".so", ".dylib", ".7z", ".zip", ".rar", ".apk", ".aab",
+        ".jar", ".war", ".class", ".bin", ".dat", ".pak", ".node", ".wasm", ".pyc",
+    }
+    # 允许入库的二进制扩展名(低风险, 如图片/字体) — 作为安全白名单
+    ALLOWED_BINARY_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".ttf", ".otf", ".woff", ".woff2", ".svg"}
+
     for path in files:
         full = os.path.join(ROOT, path)
         if not os.path.isfile(full):
             continue
-        # 跳过扫描器自身(它包含检测规则字符串, 属误报源)
+        # 跳过扫描器自身与 .gitignore(它们包含检测规则字符串, 属误报源)
         if os.path.abspath(full) == os.path.abspath(__file__):
             continue
-        # 跳过二进制/大文件(不扫描内容, 但按扩展名拦截)
-        size = os.path.getsize(full)
-        if size > 2_000_000:  # >2MB 不扫描内容
-            ext = os.path.splitext(path)[1].lower()
-            if ext in (".exe", ".dll", ".7z", ".apk", ".png", ".jpg", ".ttf", ".pak", ".dat", ".bin"):
-                continue
-        try:
-            with open(full, "r", encoding="utf-8", errors="replace") as f:
-                content = f.read(512_000)  # 只扫前 512KB
-        except Exception:
+        if os.path.basename(full) == ".gitignore":
             continue
 
-        for pat, desc in patterns:
-            m = re.search(pat, content)
-            if m:
-                line_no = content[: m.start()].count("\n") + 1
-                # 脱敏: 只显示前4字符
-                secret = m.group(0)
-                masked = secret[:4] + "…" if len(secret) > 8 else secret
+        rel = path.replace("\\", "/")
+        base = os.path.basename(full)
+
+        # ── 路径级拦截(与内容无关) ──
+        if PATH_BLOCK_RE.search(rel) or PATH_BLOCK_RE.search(base):
+            findings.append({
+                "file": path, "line": 0, "pattern": "敏感文件路径(.env/.key/.pem/credentials/secrets…)",
+                "masked": "(按路径拦截)",
+            })
+            continue
+
+        ext = os.path.splitext(base)[1].lower()
+        size = os.path.getsize(full)
+
+        # ── 高风险二进制: 不扫描内容 → 默认阻止 push ──
+        if ext in HIGH_RISK_BINARY_EXTS:
+            findings.append({
+                "file": path, "line": 0,
+                "pattern": f"高风险二进制({ext}), 内容不可扫描",
+                "masked": "(按扩展名拦截)",
+            })
+            continue
+        # 其他非文本/超大文件: 白名单图片字体等放行; 其余超 2MB 阻止
+        if ext and ext not in ALLOWED_BINARY_EXTS and size > 2_000_000:
+            findings.append({
+                "file": path, "line": 0,
+                "pattern": f"大文件({size // 1024}KB, {ext}), 无法完整扫描内容",
+                "masked": "(按大小拦截)",
+            })
+            continue
+
+        # ── 文本内容扫描(分块, 全文件覆盖, 不只看前 512KB) ──
+        try:
+            with open(full, "r", encoding="utf-8", errors="replace") as f:
+                # 分块读取(64KB/块), 逐块匹配, 记录匹配行号
+                for chunk_start in range(0, size, 64 * 1024):
+                    f.seek(chunk_start)
+                    content = f.read(64 * 1024)
+                    if not content:
+                        break
+                    for pat, desc in patterns:
+                        m = re.search(pat, content)
+                        if m:
+                            line_no = content[: m.start()].count("\n") + 1
+                            if chunk_start > 0:
+                                # 近似行号(分块边界), 标注"约"
+                                line_no = f"约{line_no}"
+                            secret = m.group(0)
+                            masked = secret[:4] + "…" if len(secret) > 8 else secret
+                            findings.append({
+                                "file": path, "line": line_no, "pattern": desc, "masked": masked,
+                            })
+                            break  # 每文件每块最多记一条, 避免刷屏
+        except (UnicodeDecodeError, OSError):
+            # 无法按文本读取: 非白名单二进制且非高风险扩展 → 保守拦截
+            if ext not in ALLOWED_BINARY_EXTS:
                 findings.append({
-                    "file": path,
-                    "line": line_no,
-                    "pattern": desc,
-                    "masked": masked,
+                    "file": path, "line": 0,
+                    "pattern": "无法按文本读取, 无法确认内容安全",
+                    "masked": "(按内容不可读拦截)",
                 })
 
     return len(findings) > 0, findings
@@ -318,16 +371,43 @@ def write_project_state(state, path):
     open(path, "w", encoding="utf-8").write("\n".join(lines))
 
 
+def get_repo_owner_repo():
+    """从 git remote get-url origin 解析 (owner, repo)。
+
+    兼容:
+      https://github.com/owner/repo.git
+      https://github.com/owner/repo
+      git@github.com:owner/repo.git
+      git@github.com:owner/repo
+    无法解析 → (None, None), 绝不猜测。
+    """
+    code, out, _ = git("remote", "get-url", "origin")
+    if code != 0 or not out:
+        return None, None
+    url = out.strip()
+    m = re.match(r"(?:https?://[^/]+/|git@[^:]+:)([^/]+)/([^/]+?)(?:\.git)?$", url)
+    if not m:
+        return None, None
+    return m.group(1), m.group(2)
+
+
 def get_repo_visibility():
     """查询 GitHub 仓库真实可见性(private/public)。
 
+    仓库 owner/repo 从 git remote 自动解析(不写死)。
     优先 gh CLI(用户已登录), 失败则尝试无 token 的公开 API 探测:
     - API 返回 visibility → 采用
-    - 无法可靠获取 → 返回 "unknown"(不猜测)
+    - 无法解析 remote 或查询失败 → 返回 "unknown"(不猜测)
     """
+    owner, repo = get_repo_owner_repo()
+    if not owner or not repo:
+        return "unknown"
     try:
-        code, out, _ = run(["gh", "api", "repos/weiyang02520-ops/xinglu-reverse-engineering", "--jq",
-                            "{private: .private, visibility: .visibility}"], timeout=30)
+        code, out, _ = run(
+            ["gh", "api", f"repos/{owner}/{repo}", "--jq",
+             "{private: .private, visibility: .visibility}"],
+            timeout=30,
+        )
         if code == 0 and out:
             import json as _json
             d = _json.loads(out)
@@ -338,7 +418,7 @@ def get_repo_visibility():
     try:
         import urllib.request
         with urllib.request.urlopen(
-            "https://api.github.com/repos/weiyang02520-ops/xinglu-reverse-engineering",
+            f"https://api.github.com/repos/{owner}/{repo}",
             timeout=10,
         ) as resp:
             import json as _json

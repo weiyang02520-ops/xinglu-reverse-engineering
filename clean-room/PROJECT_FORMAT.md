@@ -174,6 +174,9 @@ characters: [lin-xiaoman, lao-chen]
 
 - 章节号递增: 新草稿章节号 = current_chapter + 1(或显式指定)。
 - `current_chapter` 只在章节 **CONFIRMED** 时更新(USER_CONFIRMED 收编流程)。
+- **两条确认路径**(强制):
+  - 用户手动章节: `DRAFT → USER_CONFIRMED → CONFIRMED`(显式 confirm 即用户确认)。
+  - AI Writer 章节: 必须 `DRAFT → REVIEWING → READY → USER_CONFIRMED → CONFIRMED`; 程序层禁止 AI 写入的草稿在未过 Reviewer(未达 READY)时被 confirm。
 - 记忆文件可随时删除重建(`rebuild-memory`), 但**只重建 memory/**。
 - 未知文件类型(如 PDF)放 `assets/` 目录, 不参与解析。
 - 真实 API Key **不得**出现在任何项目文件中(SecretStore 见 PROVIDERS §3)。
