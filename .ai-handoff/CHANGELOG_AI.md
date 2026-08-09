@@ -36,3 +36,11 @@
 - `M reverse_workspace/PROGRESS.md`
 - ` M scripts/ai_checkpoint.py`
 
+
+## 2026-08-09 13:13 — Checkpoint
+
+摘要: update 1 files
+
+- `M reverse_workspace/PROGRESS.md`
+- `?? .ai-handoff/AUTOMATION_SETUP.md`
+
